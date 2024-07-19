@@ -1,0 +1,5 @@
+/logs
+__pycache__/*
+.env
+uploads/*
+/rag/bert/huggingface/bert-base-uncased/pytorch_model.bin
