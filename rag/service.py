@@ -3,7 +3,6 @@
 from pathlib import Path
 from flask import current_app
 from openai import OpenAI
-import openai  
 import requests
 from .models import FileInfo, db, QnA
 import os

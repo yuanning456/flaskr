@@ -1,11 +1,6 @@
-from pathlib import Path
 from flask import current_app
 from openai import OpenAI
-import openai  
-import requests
-from .models import FileInfo, db, QnA
 import os
-from .bert import bert_embedding, text_to_embedding, get_most_similar_embedding
 #文件上传 api POST https://api.moonshot.cn/v1/files
 
 
