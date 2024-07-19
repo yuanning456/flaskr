@@ -5,9 +5,10 @@ from flask import current_app
 from openai import OpenAI
 import openai  
 import requests
-from .models import FileInfo, db
+from .models import FileInfo, db, QnA
 import os
-from .bert import bert_embedding
+from .bert import bert_embedding, text_to_embedding, get_most_similar_embedding
+from .moonshot import chat
 #文件上传 api POST https://api.moonshot.cn/v1/files
 
 def get_client(url: str):
@@ -91,14 +92,23 @@ def get_info_content(file_id:str):
         return None
    
 
+def ask(question:str):
+    if question == '':
+        return {"message": "请输入问题"}
+    question_embedding = text_to_embedding(question)
 
-
+    text = "三年级一班有同学：小明、小红、大壮、小李、小刚，小红是学习委员、小明是班长，大壮是体育委员和数学课代表。 小红带了红领巾，今天天气小雨，35度，特斯拉卖35万一辆。"
+    embedding = text_to_embedding(question)
+    answer = chat(question, text)
+    qnA_entry = QnA(question=question, embedding=question_embedding.tobytes(), answer=answer)
+    db.session.add(qnA_entry)
+    db.session.commit()
+    
+    return answer
 
 
 def get_message_b():
-    file_content = '三年级一班有同学：小明、小红、大壮、小李、小刚，小红是学习委员、小明是班长，大壮是体育委员和数学课代表。今天天气小雨，35度，特斯拉卖35万一辆。'
-    log = bert_embedding(file_content)
-    current_app.logger.error(log)
+    
     return {"message": "This is endpoint b"}
 
 def process_message_c():

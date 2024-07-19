@@ -1,6 +1,35 @@
 import torch
 from transformers import BertTokenizer, BertModel
 from .models import embeddings, db
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+# 使用 BERT 分词器和模型生成嵌入向量。
+def text_to_embedding(text):
+    tokenizer = BertTokenizer.from_pretrained('D:\code\demo\\flaskr\\rag\\bert\huggingface\\bert-base-uncased')
+    model = BertModel.from_pretrained('D:\code\demo\\flaskr\\rag\\bert\huggingface\\bert-base-uncased')
+    encode_input = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
+    with torch.no_grad():
+        outputs = model(**encode_input)
+        embedding = outputs.last_hidden_state.mean(dim=1).numpy().astype(np.float32)
+    return embedding
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #用于获取BERT模型的词嵌入
 def bert_embedding(text):
@@ -38,6 +67,37 @@ def bert_embedding(text):
 
 
 
+
+# 计算嵌入之间的余弦相似度
+def get_most_similar_embedding(question_embedding):
+    # 将 question_embedding 转换为二维数组，如果它还不是
+    if question_embedding.ndim == 1:
+        question_embedding = question_embedding[np.newaxis, :]
+
+    db_embeddings = db.session.query(embeddings).all()
+    max_similarity = -1
+    most_similar_embedding = None
+
+    for embedding_row in db_embeddings:
+        # 从 Row 对象中获取字符串嵌入向量
+        embedding_str = str(embedding_row.embedding)  # 确保是字符串类型
+
+        # 将字符串嵌入向量转换为 NumPy 数组
+        embedding_vector = np.fromstring(embedding_str, sep=' ', dtype=np.float32)
+        embedding_vector = embedding_vector.reshape(1, -1)  # 确保它是二维数组
+
+        # 计算余弦相似度
+        similarity = cosine_similarity(question_embedding, embedding_vector)
+        if similarity[0][0] > max_similarity:
+            max_similarity = similarity[0][0]
+            # 存储最相似的嵌入向量的 ID，用于返回
+            most_similar_embedding_id = embedding_row.id
+
+    # 使用最相似的嵌入向量的 ID 来获取相关的答案或数据
+    # 例如，如果你的数据库中有一个相关的答案字段，你可以这样做：
+    # most_similar_answer = db.session.query(Embedding).get(most_similar_embedding_id).answer
+
+    return most_similar_embedding_id  # 或返回相关的答案
 # 文本相似性检测：
 
 # 计算不同文本之间的嵌入向量的相似度，以判断它们的相似性。

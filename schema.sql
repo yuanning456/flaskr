@@ -19,3 +19,10 @@ CREATE TABLE file_info (
 CREATE TABLE IF NOT EXISTS embeddings (id SERIAL PRIMARY KEY, embedding TEXT)
 
 
+CREATE TABLE qna (
+    id SERIAL PRIMARY KEY,
+    question TEXT NOT NULL,
+    embedding BYTEA NOT NULL,
+    answer TEXT,
+    PRIMARY KEY (id)
+);

@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from . import bp
-from .service import get_message_b, process_message_c, file_to_moonshot, file_list, get_info, get_info_content
+from .service import get_message_b, process_message_c, file_to_moonshot, file_list, get_info, get_info_content, ask
 from flask import render_template
 from flask import current_app
 from flask import Blueprint
@@ -57,6 +57,11 @@ def get_file_content():# cq897s2tnn0t8799pip0
 
 
 
+@bp.route('/chat', methods=['GET'])
+def chat():
+    txt = request.args.get('txt')
+    info = ask(txt)
+    return jsonify(info)
 
 
 
