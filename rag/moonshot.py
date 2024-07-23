@@ -12,7 +12,6 @@ def chat(ask, bg:str):
     base_url = "https://api.moonshot.cn/v1",
     )
     current_app.logger.error(ask)
-
     completion = client.chat.completions.create(
         model = "moonshot-v1-8k",
         messages = [
